@@ -154,6 +154,32 @@ export default function AdminSettingsPage() {
     }
   }
 
+  async function resetLogoToDefault() {
+    setSaving(true);
+    setMessage("");
+    setError("");
+
+    const { error } = await supabase
+      .from("site_settings")
+      .update({
+        logo_url: "",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", 1);
+
+    if (error) {
+      setError(error.message);
+    } else {
+      setSettings((current) => ({
+        ...current,
+        logo_url: "",
+      }));
+      setMessage("Default logo restored successfully.");
+    }
+
+    setSaving(false);
+  }
+
   async function saveSettings(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -314,6 +340,15 @@ export default function AdminSettingsPage() {
                         No logo uploaded
                       </div>
                     )}
+
+                    <button
+                      type="button"
+                      onClick={resetLogoToDefault}
+                      disabled={saving || uploadingLogo}
+                      className="mb-4 border border-[#555555] bg-transparent px-4 py-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#aaaaaa] transition hover:border-[#d4af37] hover:text-[#d4af37] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Use Default Logo
+                    </button>
 
                     <input
                       type="file"
